@@ -1,0 +1,15 @@
+.vscode/**
+.vscode-test/
+out/
+node_modules/
+src/
+test/
+.github/
+.editorconfig
+eslint.config.cjs
+.prettierrc*
+tsconfig.json
+.nvmrc
+*.map
+**/*.ts
+pnpm-workspace.yaml

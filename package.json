@@ -1,0 +1,60 @@
+{
+  "name": "vscode-agentsofmine",
+  "displayName": "AgentsOfMine",
+  "description": "Turn your AI coding agent sessions into a searchable development memory on mobile.",
+  "version": "0.0.1",
+  "publisher": "agentsofmine",
+  "license": "MIT",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kifahabbad/vscode-agentsofmine.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kifahabbad/vscode-agentsofmine/issues"
+  },
+  "homepage": "https://agentsofmine.io",
+  "icon": "assets/icon.png",
+  "galleryBanner": {
+    "color": "#0B0F14",
+    "theme": "dark"
+  },
+  "engines": {
+    "vscode": "^1.95.0"
+  },
+  "categories": ["Other"],
+  "keywords": ["ai", "agents", "claude", "opencode", "codex", "session", "sync"],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "agentsofmine.hello",
+        "title": "AgentsOfMine: Hello"
+      }
+    ]
+  },
+  "scripts": {
+    "compile": "./node_modules/.bin/tsc -p ./",
+    "watch": "./node_modules/.bin/tsc -watch -p ./",
+    "lint": "./node_modules/.bin/eslint src test",
+    "typecheck": "./node_modules/.bin/tsc --noEmit",
+    "test": "node ./out/test/runTests.js",
+    "pretest": "npm run compile",
+    "package": "vsce package --no-dependencies",
+    "vscode:prepublish": "npm run compile"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^22.0.0",
+    "@types/vscode": "^1.95.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "@vscode/test-electron": "^2.4.1",
+    "@vscode/vsce": "^3.0.0",
+    "eslint": "^9.0.0",
+    "glob": "^11.0.0",
+    "mocha": "^10.8.0",
+    "typescript": "^5.7.0"
+  }
+}

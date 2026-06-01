@@ -1,0 +1,9 @@
+out/
+node_modules/
+*.vsix
+.DS_Store
+.vscode-test/
+coverage/
+*.js.map
+.env
+.env.local
