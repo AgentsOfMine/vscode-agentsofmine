@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { detectCollector } from './detector.js';
 
 const INSTALL_PROMPT_KEY = 'agentsofmine.collectorInstallPrompted';
-const PACKAGE_NAME = 'agentsofmine-collector';
+const PACKAGE_NAME = '@agentsofmine/collector';
 
 export type InstallDecision = 'install' | 'skip' | 'already-present';
 

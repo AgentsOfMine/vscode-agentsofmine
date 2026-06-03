@@ -55,6 +55,10 @@
       {
         "command": "agentsofmine.resetInstallPrompt",
         "title": "AgentsOfMine: Reset Install Prompt (dev)"
+      },
+      {
+        "command": "agentsofmine.syncNow",
+        "title": "AgentsOfMine: Sync Now"
       }
     ]
   },

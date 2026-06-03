@@ -27,7 +27,11 @@ export function activate(context: vscode.ExtensionContext): void {
     () => resetInstallPrompt(context),
   );
 
-  context.subscriptions.push(startCollector, installCollector, openStatus, resetPrompt, {
+  const syncNow = vscode.commands.registerCommand('agentsofmine.syncNow', () => {
+    void runner?.syncNow();
+  });
+
+  context.subscriptions.push(startCollector, installCollector, openStatus, resetPrompt, syncNow, {
     dispose: () => runner?.dispose(),
   });
 
