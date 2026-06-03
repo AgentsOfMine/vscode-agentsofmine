@@ -1,20 +1,43 @@
 import * as vscode from 'vscode';
+import { ensureCollectorInstalled, resetInstallPrompt } from './collector/installer.js';
+import { CollectorRunner } from './collector/runner.js';
 
-/**
- * Called once when the extension is first activated.
- * Activation is deferred until any `agentsofmine.*` command is invoked.
- */
+let runner: CollectorRunner | null = null;
+
 export function activate(context: vscode.ExtensionContext): void {
-  const hello = vscode.commands.registerCommand('agentsofmine.hello', () => {
-    void vscode.window.showInformationMessage('AgentsOfMine is here.');
+  runner = new CollectorRunner();
+
+  const startCollector = vscode.commands.registerCommand(
+    'agentsofmine.startCollector',
+    () => runner?.start(),
+  );
+
+  const installCollector = vscode.commands.registerCommand(
+    'agentsofmine.installCollector',
+    () => ensureCollectorInstalled(context),
+  );
+
+  const openStatus = vscode.commands.registerCommand(
+    'agentsofmine.openStatus',
+    () => vscode.commands.executeCommand('workbench.action.terminal.focus'),
+  );
+
+  const resetPrompt = vscode.commands.registerCommand(
+    'agentsofmine.resetInstallPrompt',
+    () => resetInstallPrompt(context),
+  );
+
+  context.subscriptions.push(startCollector, installCollector, openStatus, resetPrompt, {
+    dispose: () => runner?.dispose(),
   });
 
-  context.subscriptions.push(hello);
+  void ensureCollectorInstalled(context).then((decision) => {
+    if (decision === 'already-present' || decision === 'install') {
+      void runner?.start();
+    }
+  });
 }
 
-/**
- * Called when the extension is deactivated (VS Code shutdown or explicit disable).
- */
 export function deactivate(): void {
-  // nothing to clean up yet
+  runner?.stop();
 }
