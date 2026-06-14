@@ -37,3 +37,13 @@ jobs:
       - name: Test
         run: xvfb-run -a pnpm test
         # xvfb-run required: @vscode/test-electron needs a display on Linux CI
+
+      - name: Package
+        run: pnpm package
+
+      - name: Upload VSIX artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: vscode-agentsofmine-vsix
+          path: '*.vsix'
+          if-no-files-found: error

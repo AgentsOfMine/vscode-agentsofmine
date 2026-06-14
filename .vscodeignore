@@ -1,6 +1,6 @@
 .vscode/**
 .vscode-test/
-out/
+out/test/**
 node_modules/
 src/
 test/
@@ -10,6 +10,10 @@ eslint.config.cjs
 .prettierrc*
 tsconfig.json
 .nvmrc
-*.map
+.npmrc
+.gitignore
+**/*.map
 **/*.ts
+pnpm-lock.yaml
 pnpm-workspace.yaml
+*.vsix
