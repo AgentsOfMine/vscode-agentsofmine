@@ -5,7 +5,7 @@ import { CollectorRunner } from './collector/runner.js';
 let runner: CollectorRunner | null = null;
 
 export function activate(context: vscode.ExtensionContext): void {
-  runner = new CollectorRunner();
+  runner = new CollectorRunner(context);
 
   const startCollector = vscode.commands.registerCommand(
     'agentsofmine.startCollector',
@@ -14,6 +14,11 @@ export function activate(context: vscode.ExtensionContext): void {
 
   const installCollector = vscode.commands.registerCommand(
     'agentsofmine.installCollector',
+    () => ensureCollectorInstalled(context),
+  );
+
+  const signIn = vscode.commands.registerCommand(
+    'agentsofmine.signIn',
     () => ensureCollectorInstalled(context),
   );
 
@@ -31,9 +36,57 @@ export function activate(context: vscode.ExtensionContext): void {
     void runner?.syncNow();
   });
 
-  context.subscriptions.push(startCollector, installCollector, openStatus, resetPrompt, syncNow, {
-    dispose: () => runner?.dispose(),
+  const openSyncMenu = vscode.commands.registerCommand('agentsofmine.openSyncMenu', async () => {
+    if (!runner) {
+      return;
+    }
+
+    const items = runner.buildSyncMenuItems();
+    const pick = await vscode.window.createQuickPick();
+    pick.title = 'AgentsOfMine';
+    pick.items = items;
+    pick.canSelectMany = false;
+
+    const selection = await new Promise<vscode.QuickPickItem | undefined>((resolve) => {
+      pick.onDidAccept(() => {
+        const selected = pick.selectedItems[0];
+        resolve(selected);
+        pick.hide();
+      });
+
+      pick.onDidHide(() => {
+        resolve(undefined);
+        pick.dispose();
+      });
+
+      pick.show();
+    });
+
+    if (!selection) {
+      return;
+    }
+
+    if (selection.label === 'Retry now') {
+      void runner.syncNow();
+    } else if (selection.label === 'Visit your account') {
+      await vscode.env.openExternal(vscode.Uri.parse('https://app.agentsofmine.io'));
+    } else if (selection.label === 'Help') {
+      await vscode.env.openExternal(vscode.Uri.parse('https://agentsofmine.io'));
+    }
   });
+
+  context.subscriptions.push(
+    startCollector,
+    installCollector,
+    signIn,
+    openStatus,
+    resetPrompt,
+    syncNow,
+    openSyncMenu,
+    {
+      dispose: () => runner?.dispose(),
+    },
+  );
 
   void ensureCollectorInstalled(context).then((decision) => {
     if (decision === 'already-present' || decision === 'install') {

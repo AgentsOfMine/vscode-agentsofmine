@@ -59,6 +59,14 @@
       {
         "command": "agentsofmine.syncNow",
         "title": "AgentsOfMine: Sync Now"
+      },
+      {
+        "command": "agentsofmine.signIn",
+        "title": "AgentsOfMine: Sign In"
+      },
+      {
+        "command": "agentsofmine.openSyncMenu",
+        "title": "AgentsOfMine: Open Sync Menu"
       }
     ]
   },
