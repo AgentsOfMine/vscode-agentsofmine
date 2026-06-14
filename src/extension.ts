@@ -1,8 +1,26 @@
 import * as vscode from 'vscode';
 import { ensureCollectorInstalled, resetInstallPrompt } from './collector/installer.js';
 import { CollectorRunner } from './collector/runner.js';
+import { PairingPanel } from './pairing/panel.js';
 
 let runner: CollectorRunner | null = null;
+
+const SIGNED_IN_TOAST =
+  'AgentsOfMine is signed in. Sessions will sync as you work. ' +
+  'Open the sync menu in the status bar to see progress.';
+
+async function openPairing(context: vscode.ExtensionContext): Promise<void> {
+  const detection = await ensureCollectorInstalled(context);
+  if (detection === 'unsupported') {
+    return;
+  }
+  runner?.setPairing(true);
+  await PairingPanel.open(context, async (_token) => {
+    await runner?.refresh();
+    void vscode.window.showInformationMessage(SIGNED_IN_TOAST);
+    runner?.setPairing(false);
+  });
+}
 
 export function activate(context: vscode.ExtensionContext): void {
   runner = new CollectorRunner(context);
@@ -19,7 +37,12 @@ export function activate(context: vscode.ExtensionContext): void {
 
   const signIn = vscode.commands.registerCommand(
     'agentsofmine.signIn',
-    () => ensureCollectorInstalled(context),
+    () => openPairing(context),
+  );
+
+  const pairDevice = vscode.commands.registerCommand(
+    'agentsofmine.pairDevice',
+    () => openPairing(context),
   );
 
   const openStatus = vscode.commands.registerCommand(
@@ -79,6 +102,7 @@ export function activate(context: vscode.ExtensionContext): void {
     startCollector,
     installCollector,
     signIn,
+    pairDevice,
     openStatus,
     resetPrompt,
     syncNow,

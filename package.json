@@ -65,8 +65,33 @@
         "title": "AgentsOfMine: Sign In"
       },
       {
+        "command": "agentsofmine.pairDevice",
+        "title": "AgentsOfMine: Pair this device"
+      },
+      {
         "command": "agentsofmine.openSyncMenu",
         "title": "AgentsOfMine: Open Sync Menu"
+      }
+    ],
+    "walkthroughs": [
+      {
+        "id": "agentsofmine.gettingStarted",
+        "title": "Get Started with AgentsOfMine",
+        "description": "Pair this device and start syncing your AI coding sessions.",
+        "steps": [
+          {
+            "id": "pair",
+            "title": "Pair this device",
+            "description": "Scan a QR code on your phone to link this VS Code to your AgentsOfMine account.",
+            "media": {
+              "image": "assets/walkthrough-pair.png",
+              "altText": "QR pairing modal"
+            },
+            "completionEvents": [
+              "onCommand:agentsofmine.signIn"
+            ]
+          }
+        ]
       }
     ]
   },

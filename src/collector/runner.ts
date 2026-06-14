@@ -170,6 +170,18 @@ export class CollectorRunner {
     return this.syncInFlight;
   }
 
+  async refresh(): Promise<void> {
+    await this.initializeState();
+  }
+
+  setPairing(active: boolean): void {
+    if (active) {
+      this.updateState('pairing');
+    } else {
+      void this.initializeState();
+    }
+  }
+
   dispose(): void {
     this.stop();
     this.statusBarItem.dispose();
