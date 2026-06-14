@@ -89,9 +89,10 @@ export function activate(context: vscode.ExtensionContext): void {
   );
 
   void ensureCollectorInstalled(context).then((decision) => {
-    if (decision === 'already-present' || decision === 'install') {
-      void runner?.start();
+    if (decision === 'unsupported' || decision === 'skip') {
+      return;
     }
+    void runner?.start();
   });
 }
 
