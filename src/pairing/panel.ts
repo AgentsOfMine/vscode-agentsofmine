@@ -64,12 +64,15 @@ export class PairingPanel {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 10000);
     try {
-      const response = await fetch(url.toString(), {
+      const init: RequestInit = {
         method,
-        headers: body ? { 'Content-Type': 'application/json' } : undefined,
-        body: body ? JSON.stringify(body) : undefined,
         signal: controller.signal,
-      });
+      };
+      if (body) {
+        init.headers = { 'Content-Type': 'application/json' };
+        init.body = JSON.stringify(body);
+      }
+      const response = await fetch(url.toString(), init);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return response.json();
     } finally {
