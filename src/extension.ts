@@ -1,7 +1,11 @@
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
 import * as vscode from 'vscode';
 import { ensureCollectorInstalled, resetInstallPrompt } from './collector/installer.js';
 import { CollectorRunner } from './collector/runner.js';
 import { PairingPanel } from './pairing/panel.js';
+
+const execFileAsync = promisify(execFile);
 
 let runner: CollectorRunner | null = null;
 
@@ -22,6 +26,32 @@ async function openPairing(context: vscode.ExtensionContext): Promise<void> {
       void vscode.window.showInformationMessage(SIGNED_IN_TOAST);
     },
     () => runner?.setPairing(false),
+  );
+}
+
+async function signOut(context: vscode.ExtensionContext): Promise<void> {
+  const choice = await vscode.window.showWarningMessage(
+    'Sign out of AgentsOfMine on this device? Syncing stops until you pair again.',
+    { modal: true },
+    'Sign out',
+  );
+  if (choice !== 'Sign out') {
+    return;
+  }
+
+  await context.secrets.delete('agentsofmine.deviceToken');
+  await context.globalState.update('agentsofmine.deviceId', undefined);
+
+  try {
+    await execFileAsync('aom', ['unpair', '-y'], { timeout: 10_000 });
+  } catch {
+    // Best-effort: extension state is already cleared above.
+  }
+
+  await runner?.refresh();
+  void vscode.window.showInformationMessage(
+    'Signed out on this device. To also revoke it from your account, ' +
+      'open agentsofmine.io → Devices → Revoke.',
   );
 }
 
@@ -46,6 +76,11 @@ export function activate(context: vscode.ExtensionContext): void {
   const pairDevice = vscode.commands.registerCommand(
     'agentsofmine.pairDevice',
     () => openPairing(context),
+  );
+
+  const signOutCmd = vscode.commands.registerCommand(
+    'agentsofmine.signOut',
+    () => signOut(context),
   );
 
   const openStatus = vscode.commands.registerCommand(
@@ -98,6 +133,8 @@ export function activate(context: vscode.ExtensionContext): void {
       await vscode.env.openExternal(vscode.Uri.parse('https://app.agentsofmine.io'));
     } else if (selection.label === 'Help') {
       await vscode.env.openExternal(vscode.Uri.parse('https://agentsofmine.io'));
+    } else if (selection.label === 'Sign out') {
+      await signOut(context);
     }
   });
 
@@ -106,6 +143,7 @@ export function activate(context: vscode.ExtensionContext): void {
     installCollector,
     signIn,
     pairDevice,
+    signOutCmd,
     openStatus,
     resetPrompt,
     syncNow,

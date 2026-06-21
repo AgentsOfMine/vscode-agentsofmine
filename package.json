@@ -70,6 +70,10 @@
         "title": "AgentsOfMine: Pair this device"
       },
       {
+        "command": "agentsofmine.signOut",
+        "title": "AgentsOfMine: Sign out"
+      },
+      {
         "command": "agentsofmine.openSyncMenu",
         "title": "AgentsOfMine: Open Sync Menu"
       }

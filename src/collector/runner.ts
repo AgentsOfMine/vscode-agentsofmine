@@ -342,6 +342,13 @@ export class CollectorRunner {
       description: 'agentsofmine.io',
     });
 
+    if (this.currentState !== 'signed-out') {
+      items.push({
+        label: 'Sign out',
+        description: 'Stop syncing on this device',
+      });
+    }
+
     return items;
   }
 }
