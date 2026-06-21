@@ -10,6 +10,14 @@ export interface SyncResult {
   errors: string[];
 }
 
+interface CollectorStatus {
+  paired: boolean;
+  deviceId: string | null;
+  lastSyncAt: string | null;
+  queueDepth: number;
+  lastError: { kind: string; message: string } | null;
+}
+
 type State = 'signed-out' | 'idle' | 'pairing' | 'syncing' | 'synced' | 'error';
 
 export class CollectorRunner {
@@ -18,6 +26,8 @@ export class CollectorRunner {
   private syncTimeoutHandle: ReturnType<typeof setTimeout> | null = null;
   private syncInFlight = false;
   private lastSyncError: string | null = null;
+  private lastSyncAtIso: string | null = null;
+  private pollHandle: ReturnType<typeof setInterval> | null = null;
 
   lastSyncResult: SyncResult | null = null;
 
@@ -37,6 +47,31 @@ export class CollectorRunner {
     }
 
     await this.initializeState();
+    this.startPolling();
+  }
+
+  private startPolling(): void {
+    if (this.pollHandle !== null) {
+      return;
+    }
+    this.pollHandle = setInterval(() => {
+      if (
+        this.syncInFlight ||
+        this.currentState === 'pairing' ||
+        this.currentState === 'synced' ||
+        this.currentState === 'error'
+      ) {
+        return;
+      }
+      void this.initializeState();
+    }, 10_000);
+  }
+
+  private stopPolling(): void {
+    if (this.pollHandle !== null) {
+      clearInterval(this.pollHandle);
+      this.pollHandle = null;
+    }
   }
 
   private async initializeState(): Promise<void> {
@@ -44,9 +79,38 @@ export class CollectorRunner {
     this.updateState(isPaired ? 'idle' : 'signed-out');
   }
 
-  // Interim: paired detection uses SecretStorage + last-sync.json presence.
-  // Replace with `aom status --json` once the collector ships that flag.
+  private async queryCollectorStatus(): Promise<CollectorStatus | null> {
+    return new Promise((resolve) => {
+      cp.execFile('aom', ['status', '--json'], { timeout: 5000 }, (error, stdout) => {
+        if (error) {
+          resolve(null);
+          return;
+        }
+        try {
+          const parsed = JSON.parse(stdout.trim()) as CollectorStatus;
+          if (typeof parsed.paired !== 'boolean') {
+            resolve(null);
+            return;
+          }
+          this.lastSyncAtIso = parsed.lastSyncAt;
+          resolve(parsed);
+        } catch {
+          resolve(null);
+        }
+      });
+    });
+  }
+
   private async isPaired(): Promise<boolean> {
+    const status = await this.queryCollectorStatus();
+    if (status !== null) {
+      return status.paired;
+    }
+    return this.isPairedFromLocalState();
+  }
+
+  // Back-compat fallback for collectors predating `aom status --json`.
+  private async isPairedFromLocalState(): Promise<boolean> {
     const token = await this.context.secrets.get('agentsofmine.deviceToken');
     if (token) {
       return true;
@@ -71,6 +135,9 @@ export class CollectorRunner {
   }
 
   private getLastSyncTimestamp(): string {
+    if (this.lastSyncAtIso) {
+      return this.formatRelativeTime(new Date(this.lastSyncAtIso));
+    }
     try {
       const lastSyncPath = this.getLastSyncPath();
       const content = fs.readFileSync(lastSyncPath, 'utf-8');
@@ -160,6 +227,7 @@ export class CollectorRunner {
   }
 
   stop(): void {
+    this.stopPolling();
     if (this.syncTimeoutHandle !== null) {
       clearTimeout(this.syncTimeoutHandle);
       this.syncTimeoutHandle = null;
