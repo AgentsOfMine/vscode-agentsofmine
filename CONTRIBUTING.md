@@ -8,7 +8,7 @@ Thanks for taking the time to contribute.
 
 ```bash
 corepack enable
-git clone https://github.com/kifahabbad/vscode-agentsofmine.git
+git clone https://github.com/AgentsOfMine/vscode-agentsofmine.git
 cd vscode-agentsofmine
 pnpm install
 pnpm compile
@@ -45,7 +45,7 @@ All four must pass before opening a PR.
 
 ## Reporting bugs
 
-Use [GitHub Issues](https://github.com/kifahabbad/vscode-agentsofmine/issues/new?template=bug_report.md).
+Use [GitHub Issues](https://github.com/AgentsOfMine/vscode-agentsofmine/issues/new?template=bug_report.md).
 For security vulnerabilities, see [SECURITY.md](./SECURITY.md) — do not file a public issue.
 
 ## Code of conduct

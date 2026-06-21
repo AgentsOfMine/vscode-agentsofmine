@@ -8,10 +8,10 @@
   "private": true,
   "repository": {
     "type": "git",
-    "url": "https://github.com/kifahabbad/vscode-agentsofmine.git"
+    "url": "https://github.com/AgentsOfMine/vscode-agentsofmine.git"
   },
   "bugs": {
-    "url": "https://github.com/kifahabbad/vscode-agentsofmine/issues"
+    "url": "https://github.com/AgentsOfMine/vscode-agentsofmine/issues"
   },
   "homepage": "https://agentsofmine.io",
   "icon": "assets/icon.png",
@@ -31,6 +31,7 @@
     "claude",
     "opencode",
     "codex",
+    "pi",
     "session",
     "sync"
   ],
