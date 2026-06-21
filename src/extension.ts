@@ -15,11 +15,14 @@ async function openPairing(context: vscode.ExtensionContext): Promise<void> {
     return;
   }
   runner?.setPairing(true);
-  await PairingPanel.open(context, async (_token) => {
-    await runner?.refresh();
-    void vscode.window.showInformationMessage(SIGNED_IN_TOAST);
-    runner?.setPairing(false);
-  });
+  await PairingPanel.open(
+    context,
+    async (_token) => {
+      await runner?.refresh();
+      void vscode.window.showInformationMessage(SIGNED_IN_TOAST);
+    },
+    () => runner?.setPairing(false),
+  );
 }
 
 export function activate(context: vscode.ExtensionContext): void {
